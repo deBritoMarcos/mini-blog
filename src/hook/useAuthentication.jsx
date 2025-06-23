@@ -65,15 +65,50 @@ export const useAuthentication = () => {
         }        
     };
 
+    // Login
+    const login = async (data) => {
+        checkIfIsCancelled();
+
+        setLoading(true);
+        setError(false);
+
+        try {
+            await signInWithEmailAndPassword(auth, data.email, data.password);
+            setLoading(false);
+        } catch (error) {
+            let errorMessage;
+           
+            if (error.message.includes('user-not-found')) {
+                errorMessage = "Usuário não encontrado."
+            } else if (error.message.includes('wrong-password') || error.message.includes('invalid-credential')) {
+                errorMessage = "E-mail ou senha está incorreto."
+            }else {
+                errorMessage = "Ocorreu um erro inesperado, por favor tente novamente mais tarde."
+            }
+
+            setError(errorMessage);
+            setLoading(false);
+        }
+    }
+
+    // Logout User
+    const logout = () => {
+        checkIfIsCancelled();
+
+        signOut(auth);
+    }
+
     useEffect(() => {
         return () => setCancelled(true);
     }, []);
 
     return {
         auth,
-        createUser,
         error,
         loading,
+        createUser,
+        login,
+        logout,
     }
 
 }
